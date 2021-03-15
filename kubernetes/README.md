@@ -52,6 +52,8 @@ When running on Kubernetes, Kuma will store all of its state and configuration o
     - [Fault Injection](#fault-injection)
       - [Adding Fault Injection Policy](#adding-fault-injection-policy)
     - [Datadog OpenTelemetry Setup](#datadog-opentelemetry-setup)
+      - [configuration and setup](#config-instructions)
+      - [example output](#example-output)
 
 ## Setup Environment
 
@@ -1172,6 +1174,8 @@ One thing to note about this policy is that three source and destination service
 
 ### Datadog OpenTelemetry Setup
 
+#### Config Instructions
+
 To setup OpenTelemetry and Datadog
 
 - Start and configure minikube
@@ -1203,10 +1207,17 @@ To setup OpenTelemetry and Datadog
     - `kubectl apply -f default-mesh.yaml`
     - `kubectl apply -f traffic-trace.yaml`
 - Deploy Kong as an ingress controller
-  - `kubectl apply -f `kuma-demo-kong.yaml`
-  - `kubectl apply -f `kuma-demo-kong.yaml`
-- use minikube to get the proxy URL, and curl the url to generate traces
+  - `kubectl apply -f kuma-demo-kong.yaml`
+  - `kubectl apply -f kuma-demo-kong.yaml`
+- Use minikube to get the proxy URL, and curl the url to generate traces
   - `minikube service -n kuma-demo kong-proxy --url`
+
+#### Example Output
+
+  If done correctly you should see connected and distributed traces in your Datadog UI:
+
+  ![span list](https://p-qkfgo2.t2.n0.cdn.getcloudapp.com/items/GGu6G8by/e85d50cf-71b8-425f-8dde-51e6e50b61eb.png?source=client&v=5d82e4bb9f4311feae0cab15d1afc931)
+  ![flamegraph](https://p-qkfgo2.t2.n0.cdn.getcloudapp.com/items/KouZoy8x/42c93725-1e33-4d8e-95d1-d1701d19c27a.png?source=client&v=f737371b7d5c54edd88075d763974818)
 
 
 
