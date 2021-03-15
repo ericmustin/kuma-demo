@@ -51,6 +51,7 @@ When running on Kubernetes, Kuma will store all of its state and configuration o
       - [Visualizing Traces](#visualizing-traces)
     - [Fault Injection](#fault-injection)
       - [Adding Fault Injection Policy](#adding-fault-injection-policy)
+    - [Datadog OpenTelemetry Setup](#datadog-opentelemetry-setup)
 
 ## Setup Environment
 
@@ -1168,6 +1169,45 @@ EOF
 ```
 
 One thing to note about this policy is that three source and destination services must have an additional [`protocol: http` tag](https://kuma.io/docs/latest/policies/http-support-in-kuma/). Now if you return to the application, roughly half the requests will return a HTTP status code 500 thanks to the abort configuration we set above. In addition, there should be a significant delay in the response because we set a 5 second delay on 99% of the requests.
+
+### Datadog OpenTelemetry Setup
+
+To setup OpenTelemetry and Datadog
+
+- Start and configure minikube
+  - `minikube start`
+  - `eval $(minikube -p minikube docker-env)`
+- Deploy the marketplace application that's had it's backend node service instrumented with opentelemetry-js
+  - First build the modified image for the local docker registery
+    - `docker build ../api/ -t kuma-demo-be-update:latest`
+  - Then deploy the application
+    - `kubectl apply -f kuma-demo-app-modified.yaml`
+- Deploy the OpenTelemetry Collector
+  - In your `kuma-demo-otel-collector.yaml` add your api key in the appropriate `yaml` configuration
+  ```yaml
+    datadog:
+    api:
+      key: <YOUR_API_KEY>
+  ```
+  - Then, deploy the opentelemetry collector
+    - `kubectl apply -f kuma-demo-otel-collector.yaml`
+- Download and Install Kuma and it's control plane
+  - install kuma using the steps from the [download](#download) section.
+    - `curl -L https://kuma.io/installer.sh | sh -`
+  - ensure you're running kuma version 1.1.1 or later
+  - cd into the `kuma-1.1.1/bin` directory and run
+    - `./kumactl install control-plane | kubectl apply -f -`
+  - cd back to the `kubernetes` directory, then delete all pods so the control-plane injector can be invoked
+    - `kubectl delete pods --all -n kuma-demo`
+  - add mesh and trace traffic configuration
+    - `kubectl apply -f default-mesh.yaml`
+    - `kubectl apply -f traffic-trace.yaml`
+- Deploy Kong as an ingress controller
+  - `kubectl apply -f `kuma-demo-kong.yaml`
+  - `kubectl apply -f `kuma-demo-kong.yaml`
+- use minikube to get the proxy URL, and curl the url to generate traces
+  - `minikube service -n kuma-demo kong-proxy --url`
+
 
 
 <!-- Back to top for web browser usability  -->

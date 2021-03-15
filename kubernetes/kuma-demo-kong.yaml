@@ -589,6 +589,20 @@ metadata:
   name: kong-server-blocks
   namespace: kuma-demo
 ---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: zipkin-example
+config: 
+  http_endpoint: http://otel-collector.default:9411/api/v2/spans
+  sample_ratio: 1.0
+  include_credential: true
+  traceid_byte_count: 16
+  header_type: preserve
+  default_header_type: b3
+  static_tags: {}
+plugin: zipkin
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -596,6 +610,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
     service.beta.kubernetes.io/aws-load-balancer-type: nlb
     80.service.kuma.io/protocol: "http"
+    konghq.com/plugins: zipkin-example
   name: kong-proxy
   namespace: kuma-demo
 spec:

@@ -1,0 +1,15 @@
+apiVersion: kuma.io/v1alpha1
+kind: Mesh
+metadata: 
+  name: default
+spec:
+  tracing:
+    defaultBackend: jaeger-collector
+    backends:
+    - name: jaeger-collector
+      type: zipkin
+      sampling: 100.0
+      conf:
+        url: http://otel-collector.default:9411/api/v2/spans
+        traceId128bit: true
+        sharedSpanContext: false

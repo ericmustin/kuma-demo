@@ -1,5 +1,4 @@
-# docker build . -t kvn0218/kuma-demo-be:latest
-# docker push kvn0218/kuma-demo-be:latest
+# docker build . -t kuma-demo-be-update:latest
 
 FROM node:lts-alpine
 
