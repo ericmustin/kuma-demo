@@ -1195,6 +1195,12 @@ To setup OpenTelemetry and Datadog
   ```
   - Then, deploy the opentelemetry collector
     - `kubectl apply -f kuma-demo-otel-collector.yaml`
+  - Then deploy the datadog-agent
+    - `helm repo add datadog https://helm.datadoghq.com`
+    - `helm repo add stable https://charts.helm.sh/stable`
+    - `helm repo update`
+  - Insert Your API KEY in the below command and run:
+    - `helm install datadog-agent -f values.yaml  --set datadog.apiKey=<API_KEY> datadog/datadog --set targetSystem=linux`
 - Download and Install Kuma and it's control plane
   - install kuma using the steps from the [download](#download) section.
     - `curl -L https://kuma.io/installer.sh | sh -`
@@ -1206,13 +1212,26 @@ To setup OpenTelemetry and Datadog
   - add mesh and trace traffic configuration
     - `kubectl apply -f default-mesh.yaml`
     - `kubectl apply -f traffic-trace.yaml`
-- Deploy Kong as an ingress controller
+- At this point you can view traces within Kuma and Node/Express/Redis/Postgres by port forwarding your frontend service
+  - `kubectl port-forward service/frontend -n kuma-demo 8080` 
+  - Then, visit `localhost:8080` and interact with the site to generate traces
+- Or, to Deploy Kong as an ingress controller
   - `kubectl apply -f kuma-demo-kong.yaml`
   - `kubectl apply -f kuma-demo-kong.yaml`
-- Use minikube to get the proxy URL, and curl the url to generate traces
+- Use minikube to get the proxy URL, and curl the url or visit in browser to generate traces
   - `minikube service -n kuma-demo kong-proxy --url`
 
 #### Example Output
+
+##### DD-Trace-JS
+  
+  If done correctly using the datadog tracing sdks, you should see connected and distributed traces in your Datadog UI:
+
+  ![flamegraph pg](https://p-qkfgo2.t2.n0.cdn.getcloudapp.com/items/E0u9wyrY/78ce0659-9684-4f83-a66c-4b5df8cfed6a.png?v=7d9963b0514813e4f89958ecbc1d4bcf)
+  ![flamegraph metrics](https://p-qkfgo2.t2.n0.cdn.getcloudapp.com/items/yAu6w1rP/5d204529-15da-4a34-a5f6-0d51329f5947.png?v=4084be0718f789b79b8b7e1ccaf0a09c)
+
+
+##### OpenTelemetry-JS
 
   If done correctly you should see connected and distributed traces in your Datadog UI:
 

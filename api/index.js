@@ -1,4 +1,5 @@
-const otel = require("./tracer")('proxy-test');
+// const otel = require("./tracer")('proxy-test');
+const datadogTracer = require("./tracer");
 const redis = require("./app/redis");
 const postgresql = require("./app/postgresql");
 const promBundle = require("express-prom-bundle");
@@ -41,24 +42,24 @@ app.post("/upload", async (req, res) => {
 
 app.get("/items", async (req, res) => {
   console.log('testing items ')
-  console.log(req.headers);
+  // console.log(req.headers);
   res.set(req.headers);
-  res.send(
-    "Hello World! Marketplace with sales and reviews made with <3 by the OCTO team at Kong Inc."
-  );
-  // postgresql
-  //   .search(req.query.q)
-  //   .then(async (results) => {
-  //     if (specialOffers == true) {
-  //       res.send(addOffer(results.rows));
-  //     } else {
-  //       res.send(results.rows);
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log('catch err: ' + err);
-  //     res.send(err);
-  //   });
+  // res.send(
+  //   "Hello World! Marketplace with sales and reviews made with <3 by the OCTO team at Kong Inc."
+  // );
+  postgresql
+    .search(req.query.q)
+    .then(async (results) => {
+      if (specialOffers == true) {
+        res.send(addOffer(results.rows));
+      } else {
+        res.send(results.rows);
+      }
+    })
+    .catch((err) => {
+      console.log('catch err: ' + err);
+      res.send(err);
+    });
 });
 
 const addOffer = (arr) => {

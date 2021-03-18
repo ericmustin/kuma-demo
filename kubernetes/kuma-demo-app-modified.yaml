@@ -145,6 +145,7 @@ spec:
     spec:
       containers:
       - image: kuma-demo-be-update:latest
+      # - image: kvn0218/kuma-demo-be:latest
         name: kuma-be
         env:
         - name: POSTGRES_HOST
@@ -155,7 +156,16 @@ spec:
           value: redis
         - name: OTEL_LOG_LEVEL
           value: DEBUG
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_PROPAGATION_STYLE_INJECT
+          value: "Datadog,B3"
+        - name: DD_PROPAGATION_STYLE_EXTRACT
+          value: "Datadog,B3"
         imagePullPolicy: Never
+        # imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3001
 ---
@@ -263,3 +273,8 @@ spec:
         image: kvn0218/kuma-demo-fe:latest
         args: ["-P", "http://backend:3001"]
         imagePullPolicy: IfNotPresent
+        env:
+        - name: VUE_APP_POSTGRES_ENDPOINT
+          value: http://backend:3001
+        - name: VUE_APP_REDIS_ENDPOINT
+          value: http://backend:3001            
